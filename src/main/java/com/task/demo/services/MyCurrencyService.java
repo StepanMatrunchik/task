@@ -31,42 +31,7 @@ public class MyCurrencyService {
         this.converterSettings=converterSettings;
     }
 
-    public void addMyCurrency() throws URISyntaxException, IOException, MalformedURLException {
-        JsonFactory jsonFactory = new JsonFactory();
-        JsonParser jsonParser = jsonFactory.createParser(new URL("https://api.nbrb.by/exrates/rates?periodicity=0"));
-        if (jsonParser.nextToken() != JsonToken.START_ARRAY) {
-            throw new IllegalStateException("Expected content to be an array");
-        }
-        while(jsonParser.nextToken() != JsonToken.END_ARRAY){
-            if (jsonParser.currentToken() != JsonToken.START_OBJECT) {
-                throw new IllegalStateException("Expected content to be an object");
-            }
-            MyCurrency myCurrency = new MyCurrency();
-            while(jsonParser.nextToken() != JsonToken.END_OBJECT){
-                String property = jsonParser.currentName();
-                jsonParser.nextToken();
-                switch (property) {
-                    case "Cur_Abbreviation":
-                        myCurrency.setName(jsonParser.getText());
-                        break;
-                    case "Cur_Scale":
-                        myCurrency.setScale(jsonParser.getIntValue());
-                        break;
-                    case "Cur_OfficialRate":
-                        myCurrency.setSellRate(jsonParser.getDoubleValue() * (1+ converterSettings.getMargin()));
-                        myCurrency.setBuyRate(jsonParser.getDoubleValue() * (1- converterSettings.getMargin()));
-                        break;
-
-                }
-
-
-
-            }
-            myCurrencyDAO.addMyCurrency(myCurrency);
-        }
-
-
-    }
+ 
     public double convertFromCurrencyToBYN(MyCurrency myCurrency){
         if(!myCurrency.getName().equals("BYN")){
             return myCurrency.getBuyRate() / myCurrency.getScale();

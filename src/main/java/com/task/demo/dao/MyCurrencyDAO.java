@@ -43,11 +43,17 @@ public class MyCurrencyDAO {
 
     public synchronized void updateCurrencies(List<MyCurrency> myCurrencies){
         for(MyCurrency myCurrency: myCurrencies){
-            jdbcTemplate.update("update public.currencies set sell_rate=?, buy_rate=? where name =?",
-                    myCurrency.getSellRate(),
-                    myCurrency.getBuyRate(),
-                    myCurrency.getName()
-            );
+            if(this.getMyCurrencyByCurrencyName(myCurrency.getName())==null){
+                this.addMyCurrency(myCurrency);
+            }
+            else {
+                jdbcTemplate.update("update public.currencies set sell_rate=?, buy_rate=? where name =?",
+                        myCurrency.getSellRate(),
+                        myCurrency.getBuyRate(),
+                        myCurrency.getName()
+                );
+            }
+
         }
     }
 
